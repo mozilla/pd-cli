@@ -43,10 +43,29 @@ func NewCommand() cli.Command {
 		Before: preflight,
 		Subcommands: cli.Commands{
 			cli.Command{
-				Name:   "init",
-				Usage:  "initializes a repo",
+				Name:  "init",
+				Usage: "initializes labels and a milestone for a repo",
+				Flags: []cli.Flag{cli.StringFlag{
+					Name:  "milestone, m",
+					Value: "Version 1.0",
+					Usage: "initial milestone",
+				}},
 				Action: initRepo,
 			},
+			cli.Command{
+				Name:   "init-labels",
+				Usage:  "creates or updates standard labels",
+				Action: initLabels,
+			},
+			cli.Command{
+				Name:  "create-milestone",
+				Usage: "creates a new milestone",
+				Flags: []cli.Flag{cli.StringFlag{
+					Name: "milestone, m",
+				}},
+				Action: createMilestone,
+			},
+
 			cli.Command{
 				Name:  "check",
 				Usage: "checks to verify standards conformity",
