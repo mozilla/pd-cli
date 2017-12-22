@@ -38,7 +38,7 @@ func initLabels(c *cli.Context) error {
 		"fix":             "0e8a16",
 		"new-feature":     "0e8a16",
 		"question":        "1d76db",
-		"propsal":         "1d76db",
+		"proposal":        "1d76db",
 		"support-request": "1d76db",
 	}
 
