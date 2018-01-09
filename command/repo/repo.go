@@ -48,31 +48,67 @@ func NewCommand() cli.Command {
 						Name:   "all",
 						Usage:  "Runs all checks on a repository",
 						Action: checkAll,
+						Flags: []cli.Flag{
+							cli.BoolFlag{
+								Name:  "quiet, q",
+								Usage: "only show errors",
+							},
+						},
 					},
 					cli.Command{
 						Name:   "topic",
 						Usage:  "Checks `product-delivery` topic is set",
 						Action: checkTopic,
+						Flags: []cli.Flag{
+							cli.BoolFlag{
+								Name:  "quiet, q",
+								Usage: "only show errors",
+							},
+						},
 					},
 					cli.Command{
 						Name:   "labels",
 						Usage:  "Checks Product Delivery standard labels are set",
 						Action: checkLabels,
+						Flags: []cli.Flag{
+							cli.BoolFlag{
+								Name:  "quiet, q",
+								Usage: "only show errors",
+							},
+						},
 					},
 					cli.Command{
 						Name:   "unassigned",
 						Usage:  "verify P1 issues are assigned to somebody",
 						Action: checkUnassigned,
+						Flags: []cli.Flag{
+							cli.BoolFlag{
+								Name:  "quiet, q",
+								Usage: "only show errors",
+							},
+						},
 					},
 					cli.Command{
 						Name:   "unlabled",
 						Usage:  "finds issues that do not have a label",
 						Action: checkUnlabled,
+						Flags: []cli.Flag{
+							cli.BoolFlag{
+								Name:  "quiet, q",
+								Usage: "only show errors",
+							},
+						},
 					},
 					cli.Command{
 						Name:   "milestones",
 						Usage:  "verify milestones have a project to track them",
 						Action: checkMilestones,
+						Flags: []cli.Flag{
+							cli.BoolFlag{
+								Name:  "quiet, q",
+								Usage: "only show errors",
+							},
+						},
 					},
 				},
 			},
