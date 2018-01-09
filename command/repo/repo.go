@@ -56,7 +56,7 @@ func NewCommand() cli.Command {
 					},
 					cli.Command{
 						Name:   "labels",
-						Usage:  "Checks `product-delivery` topic is set",
+						Usage:  "Checks Product Delivery standard labels are set",
 						Action: checkLabels,
 					},
 					cli.Command{
