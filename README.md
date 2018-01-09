@@ -9,7 +9,10 @@ A Product Delivery CLI toolbox of awesomeness
 
 ## Usage
 
-* Print help: `pd-cli help`
+* Print help:
+  * `pd-cli help`
+  * `pd-cli repo help`
+  * `pd-cli create-milestone help`
 * Check a repo (these are the same):
   * `pd-cli repo check all github.com/mozilla/pd-cli`
   * `pd-cli repo check all mozilla/pd-cli`
