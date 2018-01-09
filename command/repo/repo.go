@@ -13,14 +13,6 @@ func NewCommand() cli.Command {
 				Usage:  "github access token",
 				EnvVar: "GH_ACCESS_TOKEN",
 			},
-			cli.StringFlag{
-				Name:  "owner,o",
-				Usage: "Owner of the repo",
-			},
-			cli.StringFlag{
-				Name:  "repo, r",
-				Usage: "Name of the repo",
-			},
 		},
 		Before: preflight,
 		Subcommands: cli.Commands{

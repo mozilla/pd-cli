@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/go-github/github"
 	"gopkg.in/urfave/cli.v1"
@@ -14,6 +15,23 @@ import (
 // preflight() which sets ghClient, owner and repo
 
 func checkAll(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
+	r, _, err := ghClient.Repositories.Get(context.Background(), owner, repo)
+	if err != nil {
+		fmt.Fprintf(c.App.Writer, "Error: %s\n", err.Error())
+		if strings.Contains(err.Error(), "404 Not Found") {
+			fmt.Fprintf(c.App.Writer, "  !!! Is this a private repo? Make sure your GH Token has the full Repo scope !!! \n")
+		}
+		return err
+	} else if r.FullName == nil {
+		fmt.Fprintf(c.App.Writer, "Error: [%s] does not have a FullName entry\n", repo)
+		return errors.New("No repo fullname")
+	}
+
 	funcs := []cli.ActionFunc{
 		checkTopic,
 		checkLabels,
@@ -32,6 +50,11 @@ func checkAll(c *cli.Context) error {
 
 // checkTopic ensures "product-delivery" topic is assigned to the repo
 func checkTopic(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintf(c.App.Writer, "Checking for [product-delivery] topic\n")
 	ctx := context.Background()
 	topics, _, err := ghClient.Repositories.ListAllTopics(ctx, owner, repo)
@@ -52,6 +75,11 @@ func checkTopic(c *cli.Context) error {
 }
 
 func checkLabels(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintf(c.App.Writer, "Checking Labels\n")
 	labels, _, err := ghClient.Issues.ListLabels(context.Background(), owner, repo, nil)
 
@@ -113,6 +141,11 @@ func checkLabels(c *cli.Context) error {
 }
 
 func checkUnassigned(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintf(c.App.Writer, "Checking Unassigned Issues\n")
 
 	query := fmt.Sprintf("repo:%s/%s is:open no:assignee label:P1", owner, repo)
@@ -134,6 +167,11 @@ func checkUnassigned(c *cli.Context) error {
 	return nil
 }
 func checkUnlabled(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintf(c.App.Writer, "Checking Unlabled\n")
 	query := fmt.Sprintf("repo:%s/%s is:open no:label is:issue", owner, repo)
 	results, _, err := ghClient.Search.Issues(context.Background(), query, nil)
@@ -156,6 +194,11 @@ func checkUnlabled(c *cli.Context) error {
 }
 
 func checkMilestones(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintf(c.App.Writer, "Checking Milestones\n")
 	ctx := context.Background()
 

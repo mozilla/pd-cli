@@ -24,6 +24,11 @@ func initRepo(c *cli.Context) error {
 
 // initRepo ensures the necessary labels, Milestone + Project exists
 func initLabels(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
 	fmt.Fprintf(c.App.Writer, "Initializing labels on %s/%s\n", owner, repo)
 
 	// make Issue labels
@@ -70,6 +75,11 @@ func initLabels(c *cli.Context) error {
 }
 
 func createMilestone(c *cli.Context) error {
+	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
+	if err != nil {
+		return err
+	}
+
 	milestoneTitle := c.String("milestone")
 	fmt.Fprintf(c.App.Writer, "Creating Milestone/Project: %s\n", milestoneTitle)
 	ctx := context.Background()
@@ -103,7 +113,7 @@ func createMilestone(c *cli.Context) error {
 		return err
 	} else {
 		fmt.Fprintf(c.App.Writer, " - Created project %s\n", milestoneTitle)
-		for _, colName := range []string{"Backlog", "In Progress", "Blocked", "Complete"} {
+		for _, colName := range []string{"Backlog", "In Progress", "Blocked", "Completed"} {
 			ops := &github.ProjectColumnOptions{Name: colName}
 			if _, _, err := ghClient.Projects.CreateProjectColumn(ctx, *proj.ID, ops); err != nil {
 				fmt.Fprintf(c.App.Writer, " - Error: creating Project Column [%s]: %s\n", colName, err.Error())

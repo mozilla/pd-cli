@@ -18,29 +18,17 @@ var (
 	errMissingFlag = errors.New("Missing flag")
 
 	// these are set in preflight()
-	ghtoken, repo, owner string
-	ghClient             *github.Client
+	ghtoken  string
+	ghClient *github.Client
 )
 
 // preflight ensures necessary flags and sets the package vars: ghClient, owner and repo
 func preflight(c *cli.Context) (err error) {
 	// set package vars
 	ghtoken = c.String("ghtoken")
-	owner = c.String("owner")
-	repo = c.String("repo")
 
 	if ghtoken == "" {
 		fmt.Fprintf(c.App.Writer, "Error: github access token required\n")
-		err = errMissingFlag
-	}
-
-	if owner == "" {
-		fmt.Fprintf(c.App.Writer, "Error: owner required\n")
-		err = errMissingFlag
-	}
-
-	if repo == "" {
-		fmt.Fprintf(c.App.Writer, "Error: repo name required\n")
 		err = errMissingFlag
 	}
 
@@ -58,18 +46,17 @@ func preflight(c *cli.Context) (err error) {
 		tc := oauth2.NewClient(ctx, ts)
 		ghClient = github.NewClient(tc)
 	}
+	return
+}
 
-	r, _, err := ghClient.Repositories.Get(ctx, owner, repo)
-	if err != nil {
-		fmt.Fprintf(c.App.Writer, "Preflight Error: %s\n", err.Error())
-		if strings.Contains(err.Error(), "404 Not Found") {
-			fmt.Fprintf(c.App.Writer, "  !!! Is this a private repo? Make sure your GH Token has the full Repo scope !!! \n")
-		}
-		return err
-	} else if r.FullName == nil {
-		fmt.Fprintf(c.App.Writer, "Preflight Error: [%s] does not have a FullName entry\n", repo)
-		return errors.New("No repo fullname")
+// extractOwnerRepo will find the owner and the repo information in the github
+// url and return it as two strings
+func extractOwnerRepo(arg string) (string, string, error) {
+	parts := strings.Split(arg, "/")
+	l := len(parts)
+	if l < 2 {
+		return "", "", errors.New("Invalid repo path, expect: owner/reponame")
 	}
 
-	return
+	return parts[l-2], parts[l-1], nil
 }
