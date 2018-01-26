@@ -7,6 +7,14 @@ A Product Delivery CLI toolbox of awesomeness
 > go install github.com/mozilla/pd-cli
 ```
 
+## Github Access
+
+The pd-cli requires a Github access token to perform most of its commands.
+
+* Create a [GH Personal Access Token](https://github.com/settings/tokens/)
+* Give the token *all* repo permissions
+* Set the token in the environment variable `GH_ACCESS_TOKEN`
+
 ## Usage
 
 * Print help:
