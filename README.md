@@ -3,8 +3,13 @@ A Product Delivery CLI toolbox of awesomeness
 
 ## Install
 
-```
-> go install github.com/mozilla/pd-cli
+Install [dep](https://github.com/golang/de)
+
+```bash
+go get github.com/mozilla/pd-cli
+cd $GOPATH/src/github.com/mozilla/pd-cli
+dep ensure && go install .
+pd-cli -h
 ```
 
 ## Github Access
