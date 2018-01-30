@@ -67,7 +67,7 @@ func checkTopic(c *cli.Context) error {
 		return err
 	}
 
-	for _, name := range topics.Names {
+	for _, name := range topics {
 		if name == "product-delivery" {
 			fmt.Fprintf(outInfo, " - OK. Found product-delivery topic\n")
 			return nil
