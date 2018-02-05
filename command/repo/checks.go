@@ -97,6 +97,7 @@ func checkLabels(c *cli.Context) error {
 	standardLabels := map[string]string{
 		"bug":             "b60205",
 		"security":        "b60205",
+		"improvement":     "0e8a16",
 		"documentation":   "0e8a16",
 		"fix":             "0e8a16",
 		"new-feature":     "0e8a16",
