@@ -54,10 +54,12 @@ func preflight(c *cli.Context) (err error) {
 	// check that we got the repo value, which should be the last thing in
 	// the arg list
 	args := c.Args()
-	_, _, err = extractOwnerRepo(args[len(args)-1])
-	if err != nil {
-		fmt.Fprintf(outError, "ERROR: %s\n", err.Error())
-		return err
+	if len(args) > 0 {
+		_, _, err = extractOwnerRepo(args[len(args)-1])
+		if err != nil {
+			fmt.Fprintf(outError, "ERROR: %s\n", err.Error())
+			return err
+		}
 	}
 	return
 }
