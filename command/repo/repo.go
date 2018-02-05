@@ -18,11 +18,11 @@ func NewCommand() cli.Command {
 		Subcommands: cli.Commands{
 			cli.Command{
 				Name:  "init",
-				Usage: "initializes labels and a milestone for a repo",
+				Usage: "initializes labels and a project for a repo",
 				Flags: []cli.Flag{cli.StringFlag{
-					Name:  "milestone, m",
+					Name:  "project, p",
 					Value: "Version 1.0",
-					Usage: "initial milestone",
+					Usage: "initial project to create",
 				}},
 				Action: initRepo,
 			},
@@ -39,7 +39,14 @@ func NewCommand() cli.Command {
 				}},
 				Action: createMilestone,
 			},
-
+			cli.Command{
+				Name:  "create-project",
+				Usage: "creates a project with standard columns",
+				Flags: []cli.Flag{cli.StringFlag{
+					Name: "p, project",
+				}},
+				Action: createProject,
+			},
 			cli.Command{
 				Name:  "check",
 				Usage: "checks to verify standards conformity",

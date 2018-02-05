@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"strings"
 
 	"gopkg.in/urfave/cli.v1"
@@ -272,13 +270,4 @@ func checkProjects(c *cli.Context) error {
 	}
 
 	return nil
-}
-
-func getWriters(c *cli.Context) (info, err io.Writer) {
-	if c.Bool("quiet") {
-		return ioutil.Discard, c.App.Writer
-	} else {
-		return c.App.Writer, c.App.Writer
-	}
-
 }
