@@ -114,8 +114,8 @@ func checkLabels(c *cli.Context) error {
 			continue
 		}
 
-		name := *label.Name
-		color := *label.Color
+		name := label.GetName()
+		color := label.GetColor()
 
 		if expectedColor, ok := standardLabels[name]; !ok {
 			// not a standard label
@@ -161,11 +161,11 @@ func checkUnassigned(c *cli.Context) error {
 		return err
 	}
 
-	count := *results.Total
+	count := results.GetTotal()
 	if count > 0 {
 		fmt.Fprintf(outError, " - Error: %d unassigned P1 issues\n", count)
 		for _, issue := range results.Issues {
-			fmt.Fprintf(outError, "  #%-4d %s", *issue.Number, *issue.Title)
+			fmt.Fprintf(outError, "  #%-4d %s", issue.GetNumber(), issue.GetTitle())
 		}
 	} else {
 		fmt.Fprintf(outInfo, " - OK. All P1 issues assigned\n")
@@ -187,11 +187,11 @@ func checkUnlabled(c *cli.Context) error {
 		return err
 	}
 
-	unassigned := *results.Total
+	unassigned := results.GetTotal()
 	if unassigned > 0 {
 		fmt.Fprintf(outError, " - Error: %d issues unlabeled\n", unassigned)
 		for _, issue := range results.Issues {
-			fmt.Fprintf(outError, "   #%-4d %s\n", *issue.Number, *issue.Title)
+			fmt.Fprintf(outError, "   #%-4d %s\n", issue.GetNumber(), issue.GetTitle())
 		}
 	} else {
 		fmt.Fprintf(outInfo, " - OK. All issues are labeled\n")
@@ -220,7 +220,7 @@ func checkProjects(c *cli.Context) error {
 	for _, project := range projects {
 
 		if project.GetBody() == "" {
-			fmt.Fprintf(outError, " - WARNING: Project [%s] missing description\n", project.GetName())
+			fmt.Fprintf(outError, " - WARNING: Project [%s] *SHOULD* have a description\n", project.GetName())
 		}
 
 		// check the project's columns
@@ -232,7 +232,7 @@ func checkProjects(c *cli.Context) error {
 
 		flags := 0
 		for _, col := range pCols {
-			switch *col.Name {
+			switch col.GetName() {
 			case "Backlog":
 				flags |= 0x01
 			case "In Progress":
