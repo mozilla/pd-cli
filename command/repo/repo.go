@@ -100,9 +100,9 @@ func NewCommand() cli.Command {
 						},
 					},
 					cli.Command{
-						Name:   "milestones",
-						Usage:  "verify milestones have a project to track them",
-						Action: checkMilestones,
+						Name:   "projects",
+						Usage:  "verify projects fit standards",
+						Action: checkProjects,
 						Flags: []cli.Flag{
 							cli.BoolFlag{
 								Name:  "quiet, q",

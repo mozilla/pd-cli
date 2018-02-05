@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/google/go-github/github"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -39,7 +38,7 @@ func checkAll(c *cli.Context) error {
 		checkLabels,
 		checkUnassigned,
 		checkUnlabled,
-		checkMilestones,
+		checkProjects,
 	}
 
 	for _, f := range funcs {
@@ -201,83 +200,74 @@ func checkUnlabled(c *cli.Context) error {
 	return nil
 }
 
-func checkMilestones(c *cli.Context) error {
+func checkProjects(c *cli.Context) error {
 	owner, repo, err := extractOwnerRepo(c.Args().Get(0))
 	if err != nil {
 		return err
 	}
 
 	outInfo, outError := getWriters(c)
-	fmt.Fprintf(outInfo, "Checking Milestones\n")
+	fmt.Fprintf(outInfo, "Checking Projects\n")
 	ctx := context.Background()
 
-	milestones, _, err := ghClient.Issues.ListMilestones(ctx, owner, repo, nil)
-	if err != nil {
-		fmt.Fprintf(outError, " - Error: Feteching milestones, %s\n", err.Error())
-		return err
-	}
 	projects, _, err := ghClient.Repositories.ListProjects(ctx, owner, repo, nil)
 	if err != nil {
 		fmt.Fprintf(outError, " - Error: Fetching projects, %s\n", err.Error())
 		return err
 	}
 
-	pMap := make(map[string]*github.Project)
-	for _, p := range projects {
-		pMap[*p.Name] = p
-	}
+	projError := false
+	for _, project := range projects {
 
-	errHappend := false
-	for _, milestone := range milestones {
-		if project, found := pMap[*milestone.Title]; !found {
-			fmt.Fprintf(outError, " - Error: %s does not have a matching project", *milestone.Title)
-		} else {
-			// check the project's columns
-			pCols, _, err := ghClient.Projects.ListProjectColumns(ctx, *project.ID, nil)
-			if err != nil {
-				fmt.Fprintf(outError, " - Error: Fetching project columns, %s\n", err.Error())
-				return err
-			}
+		if project.GetBody() == "" {
+			fmt.Fprintf(outError, " - WARNING: Project [%s] missing description\n", project.GetName())
+		}
 
-			flags := 0
-			for _, col := range pCols {
-				switch *col.Name {
-				case "Backlog":
-					flags |= 0x01
-				case "In Progress":
-					flags |= 0x02
-				case "Blocked":
-					flags |= 0x04
-				case "Completed":
-					flags |= 0x08
-				default:
-					fmt.Fprintf(outError, ` - Error: Project "%s" has unexpected column %s\n`,
-						*project.Name, *col.Name)
-					errHappend = true
-				}
-			}
+		// check the project's columns
+		pCols, _, err := ghClient.Projects.ListProjectColumns(ctx, project.GetID(), nil)
+		if err != nil {
+			fmt.Fprintf(outError, " - Error: Fetching project columns, %s\n", err.Error())
+			return err
+		}
 
-			if flags&0x01 == 0 {
-				fmt.Fprintf(outError, ` - Error: Project "%s" missing "Backlog" column\n`, *project.Name)
-				errHappend = true
+		flags := 0
+		for _, col := range pCols {
+			switch *col.Name {
+			case "Backlog":
+				flags |= 0x01
+			case "In Progress":
+				flags |= 0x02
+			case "Blocked":
+				flags |= 0x04
+			case "Completed":
+				flags |= 0x08
+			default:
+				fmt.Fprintf(outError, " - Error: Project [%s] has unexpected column %s\n",
+					project.GetName(), col.GetName())
+				projError = true
 			}
-			if flags&0x02 == 0 {
-				fmt.Fprintf(outError, ` - Error: Project "%s" missing "In Progress" column\n`, *project.Name)
-				errHappend = true
-			}
-			if flags&0x04 == 0 {
-				fmt.Fprintf(outError, ` - Error: Project "%s" missing "Blocked" column\n`, *project.Name)
-				errHappend = true
-			}
-			if flags&0x08 == 0 {
-				fmt.Fprintf(outError, ` - Error: Project "%s" missing "Completed" column\n`, *project.Name)
-				errHappend = true
-			}
+		}
+
+		if flags&0x01 == 0 {
+			fmt.Fprintf(outError, " - Error: Project [%s] missing [Backlog] column\n", project.GetName())
+			projError = true
+		}
+		if flags&0x02 == 0 {
+			fmt.Fprintf(outError, " - Error: Project [%s] missing [In Progress] column\n", project.GetName())
+			projError = true
+		}
+		if flags&0x04 == 0 {
+			fmt.Fprintf(outError, " - Error: Project [%s] missing [Blocked] column\n", project.GetName())
+			projError = true
+		}
+		if flags&0x08 == 0 {
+			fmt.Fprintf(outError, " - Error: Project [%s] missing [Completed] column\n", project.GetName())
+			projError = true
 		}
 	}
 
-	if !errHappend {
-		fmt.Fprintf(outInfo, " - OK. Milestones verified\n")
+	if !projError {
+		fmt.Fprintf(outInfo, " - OK. Projects verified\n")
 	}
 
 	return nil
